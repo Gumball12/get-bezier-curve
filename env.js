@@ -6,6 +6,6 @@ const env = {
     'lodash': 'https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.11/lodash.min.js',
 
     'Dot': '/assets/js/Dot.js',
-    'status': '/assets/js/Status.js'
+    'status': '/assets/js/status.js'
   }
 };
