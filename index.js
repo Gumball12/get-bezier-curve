@@ -9,7 +9,9 @@ require([
   env.cdn['status']
 ], init);
 
-let app, outputTarget;
+let app;
+
+let startPosition, dps;
 
 function init (async, PIXI, _, Dot, status) {
   async.waterfall([
@@ -53,9 +55,25 @@ function init (async, PIXI, _, Dot, status) {
   
     document.body.appendChild(app.view);
 
-    // init output target
-    outputTarget = document.createElement('p');
+    // output target
+    const outputTarget = document.createElement('p');
+    
+    const outputTargetButton = document.createElement('button');
+    outputTargetButton.innerText = 'get bezier curve!';
+    outputTargetButton.style = 'display: block;';
 
+    outputTargetButton.addEventListener('click', () => {
+      // solve position for use
+      const output = _.reduce(dps, (r, dp, ind) => {
+        r.push(..._.map(dp, _.parseInt));
+
+        return r;
+      }, []);
+
+      outputTarget.innerText = `${_.map(startPosition, _.parseInt)}\n${_.chunk(output, 6).join('\n')}`;
+    });
+
+    document.body.appendChild(outputTargetButton);
     document.body.appendChild(outputTarget);
   
     cb();
@@ -98,8 +116,8 @@ function init (async, PIXI, _, Dot, status) {
         _.filter
       )(app.stage.children, isDot);
 
-      const startPosition = _.slice(dotsPosition, 0, 2);
-      const dps = _.flowRight(
+      startPosition = _.slice(dotsPosition, 0, 2);
+      dps = _.flowRight(
         _.curryRight(_.filter)(el => el.length === 6),
         _.curryRight(_.chunk, 2)(6),
         _.slice
@@ -118,17 +136,8 @@ function init (async, PIXI, _, Dot, status) {
       _.forEach(_.flowRight(_.curryRight(_.chunk, 2)(2), _.flattenDeep)(dps), dp => {
         line.lineTo(...dp);
       });
-
-      // solve position for use
-      const output = _.reduce(dps, (r, dp, ind) => {
-        r.push(..._.map(dp, _.parseInt));
-        r.push(..._.map(_.slice(dps[ind - 1], -2), _.parseInt));
-
-        return r;
-      }, _.map(startPosition, _.parseInt));
-
-      outputTarget.innerText = _.chunk(output, 4).join('\n');
     });
+
     cb();
   }
 }
